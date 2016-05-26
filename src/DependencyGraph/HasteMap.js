@@ -97,6 +97,13 @@ class HasteMap {
   }
 
   _processHasteModule(file) {
+    // APPLEAN: Skip @providesModule that is not in node_modules directory
+    if ((this._helpers.isNodeModulesDir(file) ||
+        !this._helpers.isProvidesModuleNodeModulesDir(file)) &&
+        !this._helpers.isProvidesModuleDir(file)) {
+      return new Promise((resolve) => resolve());
+    }
+
     const module = this._moduleCache.getModule(file);
     return module.isHaste().then(
       isHaste => isHaste && module.getName()
@@ -105,6 +112,13 @@ class HasteMap {
   }
 
   _processHastePackage(file) {
+    // APPLEAN: Skip @providesModule that is not in node_modules directory
+    if ((this._helpers.isNodeModulesDir(file) ||
+        !this._helpers.isProvidesModuleNodeModulesDir(file)) &&
+        !this._helpers.isProvidesModuleDir(file)) {
+      return new Promise((resolve) => resolve());
+    }
+
     file = path.resolve(file);
     const p = this._moduleCache.getPackage(file);
     return p.isHaste()
