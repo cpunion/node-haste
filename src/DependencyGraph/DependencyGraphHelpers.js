@@ -9,6 +9,7 @@
 'use strict';
 
 const path = require('../fastpath');
+const fs = require('fs');
 
 const NODE_MODULES = path.sep + 'node_modules' + path.sep;
 
@@ -33,6 +34,47 @@ class DependencyGraphHelpers {
     }
 
     return true;
+  }
+
+  isProvidesModuleNodeModulesDir(file) {
+    const index = file.lastIndexOf(NODE_MODULES);
+    if (index === -1) {
+      return false;
+    }
+
+    const parts = file.substr(index + 14).split(path.sep);
+    const dirs = this._providesModuleNodeModules;
+    for (let i = 0; i < dirs.length; i++) {
+      if (parts.indexOf(dirs[i]) > -1) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  isProvidesModuleDir(file) {
+    const index = file.lastIndexOf(NODE_MODULES);
+    if (index !== -1) {
+      return false;
+    }
+
+    const parts = file.split(path.sep);
+    if (parts[0] === '') {
+      parts[0] = path.sep;
+    }
+    const dirs = this._providesModuleNodeModules;
+    for (let i = 0; i < dirs.length; i++) {
+      const index = parts.indexOf(dirs[i]);
+      if (index > -1) {
+        const packageJsonFile = path.join(path.join.apply(null, parts.slice(0, index + 1)), 'package.json');
+        if (fs.existsSync(packageJsonFile)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   isAssetFile(file) {
